@@ -1,0 +1,170 @@
+{
+  "timestamp": "2025-07-12T07:22:47.841467",
+  "total_tests": 27,
+  "passed_tests": 24,
+  "success_rate": 88.88888888888889,
+  "results": [
+    {
+      "test": "Backend Root Endpoint",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-07-12T07:22:47.186650"
+    },
+    {
+      "test": "Backend API Documentation",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-07-12T07:22:47.187977"
+    },
+    {
+      "test": "Backend OpenAPI Spec",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-07-12T07:22:47.190139"
+    },
+    {
+      "test": "Popular Stocks API",
+      "success": true,
+      "details": "Status: 200, Items: 5",
+      "timestamp": "2025-07-12T07:22:47.199231"
+    },
+    {
+      "test": "Sectors List API",
+      "success": true,
+      "details": "Status: 200, Items: 19",
+      "timestamp": "2025-07-12T07:22:47.201783"
+    },
+    {
+      "test": "Stock Search API",
+      "success": true,
+      "details": "Status: 200, Items: 1",
+      "timestamp": "2025-07-12T07:22:47.205004"
+    },
+    {
+      "test": "Stock Price Data API",
+      "success": true,
+      "details": "Status: 200, Keys: 4",
+      "timestamp": "2025-07-12T07:22:47.207580"
+    },
+    {
+      "test": "Technical Indicators API",
+      "success": true,
+      "details": "Status: 200, Keys: 7",
+      "timestamp": "2025-07-12T07:22:47.209670"
+    },
+    {
+      "test": "Cache Stats API",
+      "success": true,
+      "details": "Status: 200, Keys: 3",
+      "timestamp": "2025-07-12T07:22:47.216615"
+    },
+    {
+      "test": "Frontend Home Page",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-07-12T07:22:47.291366"
+    },
+    {
+      "test": "Frontend Static File: /_next/static/css",
+      "success": true,
+      "details": "Status: 404",
+      "timestamp": "2025-07-12T07:22:47.326288"
+    },
+    {
+      "test": "Frontend Static File: /favicon.ico",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-07-12T07:22:47.557010"
+    },
+    {
+      "test": "Database Master Data",
+      "success": true,
+      "details": "Stocks count: 1",
+      "timestamp": "2025-07-12T07:22:47.575977"
+    },
+    {
+      "test": "Database Sector Data",
+      "success": true,
+      "details": "Sectors count: 19",
+      "timestamp": "2025-07-12T07:22:47.579534"
+    },
+    {
+      "test": "Database Cache System",
+      "success": true,
+      "details": "Cache stats available: True",
+      "timestamp": "2025-07-12T07:22:47.584469"
+    },
+    {
+      "test": "Search to Stock Code Flow",
+      "success": true,
+      "details": "Found Toyota: True",
+      "timestamp": "2025-07-12T07:22:47.598524"
+    },
+    {
+      "test": "Stock Price Data Flow",
+      "success": true,
+      "details": "Data points: 30",
+      "timestamp": "2025-07-12T07:22:47.601684"
+    },
+    {
+      "test": "Technical Indicators Flow",
+      "success": false,
+      "details": "Indicators calculated: False",
+      "timestamp": "2025-07-12T07:22:47.604549"
+    },
+    {
+      "test": "Cache Performance Flow",
+      "success": true,
+      "details": "Response time: 0.003s",
+      "timestamp": "2025-07-12T07:22:47.607479"
+    },
+    {
+      "test": "Invalid Stock Code",
+      "success": false,
+      "details": "Status: 200 (Expected: [404, 500])",
+      "timestamp": "2025-07-12T07:22:47.714710"
+    },
+    {
+      "test": "Invalid Period Parameter",
+      "success": false,
+      "details": "Status: 200 (Expected: [400, 422, 500])",
+      "timestamp": "2025-07-12T07:22:47.815182"
+    },
+    {
+      "test": "Empty Search Query",
+      "success": true,
+      "details": "Status: 200 (Expected: [200, 400, 422])",
+      "timestamp": "2025-07-12T07:22:47.818301"
+    },
+    {
+      "test": "Non-existent Endpoint",
+      "success": true,
+      "details": "Status: 404 (Expected: [404])",
+      "timestamp": "2025-07-12T07:22:47.819719"
+    },
+    {
+      "test": "Popular Stocks Response Time",
+      "success": true,
+      "details": "Time: 0.004s (Max: 2.0s)",
+      "timestamp": "2025-07-12T07:22:47.832922"
+    },
+    {
+      "test": "Stock Search Response Time",
+      "success": true,
+      "details": "Time: 0.002s (Max: 1.0s)",
+      "timestamp": "2025-07-12T07:22:47.835259"
+    },
+    {
+      "test": "Stock Price Data Response Time",
+      "success": true,
+      "details": "Time: 0.003s (Max: 3.0s)",
+      "timestamp": "2025-07-12T07:22:47.837791"
+    },
+    {
+      "test": "Cache Stats Response Time",
+      "success": true,
+      "details": "Time: 0.003s (Max: 0.5s)",
+      "timestamp": "2025-07-12T07:22:47.841023"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID, JSONB
 from sqlalchemy.sql import func
 from app.core.database import Base
 import uuid
+from datetime import datetime
 
 class User(Base):
     __tablename__ = "users"
@@ -57,10 +58,18 @@ class Stock(Base):
 class StockPriceCache(Base):
     __tablename__ = "stock_price_cache"
     
-    stock_code = Column(String(10), primary_key=True)
+    cache_key = Column(String(64), primary_key=True)  # MD5ハッシュ用に64文字に拡張
+    stock_code = Column(String(10), nullable=False, index=True)  # 検索用の実際の銘柄コード
+    period = Column(String(10), nullable=False)  # 期間
     price_data = Column(JSONB, nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now())
     expires_at = Column(DateTime(timezone=True), nullable=False, index=True)
+    
+    def is_expired(self) -> bool:
+        """キャッシュの有効期限をチェック"""
+        if self.expires_at is None:
+            return True
+        return datetime.utcnow() > self.expires_at
 
 class DailyAPIUsage(Base):
     __tablename__ = "daily_api_usage"

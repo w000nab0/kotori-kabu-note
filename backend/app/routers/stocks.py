@@ -19,11 +19,12 @@ router = APIRouter(
 @router.get("/search", response_model=List[StockResponse])
 async def search_stocks(
     q: str = Query(..., description="検索クエリ（銘柄コードまたは企業名）"),
-    limit: int = Query(10, description="検索結果の最大件数")
+    limit: int = Query(10, description="検索結果の最大件数"),
+    db: Session = Depends(get_db)
 ):
     """銘柄検索（オートサジェスト）"""
     try:
-        stocks = StockService.search_stocks(q, limit)
+        stocks = StockService.search_stocks_with_db(db, q, limit)
         return [StockResponse(
             code=stock.code,
             name=stock.name,
@@ -44,20 +45,10 @@ async def get_stock_price(
     period: str = Query("1M", description="期間: 1W, 1M, 3M, 6M, 1Y"),
     db: Session = Depends(get_db)
 ):
-    """株価データ取得"""
-    # キャッシュ確認
-    cached_data = StockService.get_cached_price_data(db, stock_code, period)
-    if cached_data:
-        return cached_data
-    
+    """株価データ取得（キャッシュ機能付き）"""
     try:
-        # 新しいデータ取得
-        price_data = StockService.get_stock_price_data(stock_code, period)
-        
-        # キャッシュ保存
-        StockService.cache_price_data(db, stock_code, period, price_data)
-        
-        return price_data
+        # キャッシュ付きでデータ取得
+        return StockService.get_stock_with_cache(db, stock_code, period)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -72,8 +63,8 @@ async def get_technical_indicators(
 ):
     """テクニカル指標取得"""
     try:
-        # 株価データ取得
-        price_data = StockService.get_stock_price_data(stock_code, period)
+        # キャッシュ付きで株価データ取得
+        price_data = StockService.get_stock_with_cache(db, stock_code, period)
         
         # テクニカル指標計算
         indicators = StockService.calculate_technical_indicators(price_data.data)
@@ -227,3 +218,108 @@ async def remove_bookmark(
     db.commit()
     
     return {"message": "Bookmark removed successfully"}
+
+@router.get("/popular", response_model=List[StockResponse])
+async def get_popular_stocks(
+    limit: int = Query(20, description="取得件数"),
+    db: Session = Depends(get_db)
+):
+    """人気銘柄取得"""
+    try:
+        stocks = StockService.get_popular_stocks(db, limit)
+        return [StockResponse(
+            code=stock.code,
+            name=stock.name,
+            market=stock.market,
+            sector=stock.sector,
+            is_active=stock.is_active,
+            updated_at=datetime.utcnow()
+        ) for stock in stocks]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get popular stocks: {str(e)}"
+        )
+
+@router.get("/sectors", response_model=List[str])
+async def get_all_sectors(
+    db: Session = Depends(get_db)
+):
+    """全セクター取得"""
+    try:
+        sectors = StockService.get_all_sectors(db)
+        return sectors
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get sectors: {str(e)}"
+        )
+
+@router.get("/sectors/{sector}", response_model=List[StockResponse])
+async def get_stocks_by_sector(
+    sector: str,
+    limit: int = Query(20, description="取得件数"),
+    db: Session = Depends(get_db)
+):
+    """セクター別銘柄取得"""
+    try:
+        stocks = StockService.get_stocks_by_sector(db, sector, limit)
+        return [StockResponse(
+            code=stock.code,
+            name=stock.name,
+            market=stock.market,
+            sector=stock.sector,
+            is_active=stock.is_active,
+            updated_at=datetime.utcnow()
+        ) for stock in stocks]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get stocks by sector: {str(e)}"
+        )
+
+@router.get("/cache/stats")
+async def get_cache_stats(
+    db: Session = Depends(get_db)
+):
+    """キャッシュ統計情報取得"""
+    try:
+        from app.services.cache_service import CacheService
+        stats = CacheService.get_cache_stats(db)
+        return stats
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get cache stats: {str(e)}"
+        )
+
+@router.post("/cache/cleanup")
+async def cleanup_cache(
+    db: Session = Depends(get_db)
+):
+    """期限切れキャッシュのクリーンアップ"""
+    try:
+        from app.services.cache_service import CacheService
+        deleted_count = CacheService.cleanup_expired_caches(db)
+        return {"message": f"Cleaned up {deleted_count} expired cache entries"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to cleanup cache: {str(e)}"
+        )
+
+@router.post("/cache/warm-up")
+async def warm_up_cache(
+    db: Session = Depends(get_db)
+):
+    """人気銘柄のキャッシュウォームアップ"""
+    try:
+        from app.services.cache_service import CacheService
+        popular_codes = [stock["code"] for stock in StockService.POPULAR_STOCKS[:10]]
+        success = CacheService.warm_up_cache(db, popular_codes)
+        return {"message": "Cache warm-up completed" if success else "Cache warm-up failed"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to warm up cache: {str(e)}"
+        )
