@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  playwright-tests:
+    build: .
+    environment:
+      - CI=true
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    networks:
+      - kotori_kabu_note_default
+    depends_on:
+      - test-runner
+    command: ["npx", "playwright", "test", "--reporter=html"]
+
+  # テスト実行用の軽量サービス
+  test-runner:
+    build: .
+    environment:
+      - CI=true
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    networks:
+      - kotori_kabu_note_default
+    command: ["sleep", "10"]
+
+networks:
+  kotori_kabu_note_default:
+    external: true
